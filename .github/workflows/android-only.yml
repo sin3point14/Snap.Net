@@ -18,7 +18,9 @@ jobs:
         with:
           packages: platform-tools
       - name: Install Android 29 platform
-        run: sdkmanager "platforms;android-29"
+        run: |
+          $env:JAVA_HOME = $env:JAVA_HOME_17_X64
+          sdkmanager "platforms;android-29"
       - name: Cache Android SDK
         uses: actions/cache@v4
         with:
