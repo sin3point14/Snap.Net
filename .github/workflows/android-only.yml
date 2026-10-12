@@ -51,7 +51,7 @@ jobs:
       - name: Build Android
         run: >
           msbuild Mobile/Mobile.Android/Snap.Net.Mobile.Android.csproj
-          /t:PackageForAndroid /p:Configuration=Release
+          /t:PackageForAndroid /p:Configuration=Release /p:AndroidSdkDirectory=C:\Android\android-sdk
       - name: Upload Android APK
         if: true
         uses: actions/upload-artifact@v4
