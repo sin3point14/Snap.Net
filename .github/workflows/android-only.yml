@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 jobs:
   android:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Checkout (with submodules)
         uses: actions/checkout@v4
