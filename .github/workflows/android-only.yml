@@ -1,0 +1,59 @@
+---
+name: Android APK
+on:
+  workflow_dispatch:
+jobs:
+  android:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android 29 platform
+        run: sdkmanager "platforms;android-29"
+      - name: Cache Android SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.android
+            ~/android-sdk
+          key: android-sdk-${{ runner.os }}
+      - name: Cache Xamarin build
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/obj
+            **/bin
+          key: build-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ runner.os }}-
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-        
+      - name: Restore SDK projects
+        run: dotnet restore Snap.Net.SnapClient/Snap.Net.SnapClient.csproj
+      - name: Restore Mobile shared project
+        run: dotnet restore Mobile/Mobile/Snap.Net.Mobile.csproj
+      - name: Restore Android project
+        run: nuget restore Mobile/Mobile.Android/Snap.Net.Mobile.Android.csproj
+      - name: Build Android
+        run: >
+          msbuild Mobile/Mobile.Android/Snap.Net.Mobile.Android.csproj
+          /t:PackageForAndroid /p:Configuration=Release
+      - name: Upload Android APK
+        if: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: |
+            **/*.apk
